@@ -244,3 +244,5 @@ p.lead2 { color: var(--muted); font-size: 17.5px; text-align: center; max-width:
 .cta p { color: var(--muted); margin: 0 auto; max-width: 520px; font-size: 17px; }
 .cta .btn-row { justify-content: center; }
 #demo { scroll-margin-top: 80px; }
+.hero3 { display: flex; flex-direction: column; align-items: center; gap: 28px; padding: 72px 24px 24px; }
+.hero3 .mock { width: 100%; max-width: 640px; }
