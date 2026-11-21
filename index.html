@@ -7,7 +7,7 @@
   <meta name="description" content="Malutki model AI w Twojej przeglądarce zamienia zadania z matematyki i fizyki na równania, a precyzyjny solver je rozwiązuje i sprawdza. Offline, prywatnie, za darmo.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
-  <link rel="stylesheet" href="js/style.css?v=6">
+  <link rel="stylesheet" href="js/style.css?v=7">
 </head>
 <body>
 <nav class="nav"><div class="nav-in">
@@ -198,10 +198,10 @@ solver → x = <span class="g">30.29 m</span>  (sprawdzone)</div>
 
   const solver = makeSolver(math);
   const $ = (id) => document.getElementById(id);
-  const sizes = { 'HuggingFaceTB/SmolLM2-135M-Instruct': '~120 MB', 'HuggingFaceTB/SmolLM2-360M-Instruct': '~275 MB', 'onnx-community/Qwen2.5-0.5B-Instruct': '~480 MB', 'onnx-community/Qwen2.5-1.5B-Instruct': '~1.1 GB' };
+  const sizes = { 'HuggingFaceTB/SmolLM2-135M-Instruct': '120 MB', 'HuggingFaceTB/SmolLM2-360M-Instruct': '275 MB', 'onnx-community/Qwen2.5-0.5B-Instruct': '480 MB', 'onnx-community/Qwen2.5-1.5B-Instruct': '1.1 GB' };
   MODELS.forEach((m, i) => {
     $('models').insertAdjacentHTML('beforeend',
-      `<input type="radio" name="model" id="m${i}" value="${m.id}" ${i === 1 ? 'checked' : ''}><label for="m${i}"><b>${m.label.replace(/^\S+ /, '')}</b><span>${m.label.split(' ')[0]} · ${sizes[m.id]}</span></label>`);
+      `<input type="radio" name="model" id="m${i}" value="${m.id}" ${i === 1 ? 'checked' : ''}><label for="m${i}"><b>${m.label.replace(/^\S+ /, '')}</b><span>${sizes[m.id]}</span></label>`);
   });
   const device = await detectDevice();
   $('device').textContent = device === 'webgpu' ? 'GPU · WebGPU' : 'CPU · WASM';

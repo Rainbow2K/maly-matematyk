@@ -72,7 +72,7 @@ main { max-width: 1120px; margin: 0 auto; padding: 56px 24px 96px; }
 
 /* cards & layout */
 .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; backdrop-filter: blur(8px); }
-.card + .card { margin-top: 18px; }
+main > .card + .card { margin-top: 18px; }
 .card-title { font-size: 13px; text-transform: uppercase; letter-spacing: .1em; color: var(--faint); margin: 0 0 14px; font-weight: 600; }
 .app { display: grid; grid-template-columns: 1.05fr 1fr; gap: 18px; align-items: start; }
 @media (max-width: 880px) { .app { grid-template-columns: 1fr; } .nav-links a.hide-sm { display: none; } }
