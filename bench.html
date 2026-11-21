@@ -97,7 +97,17 @@
       $('status').textContent = `Ładuję ${id}…`;
       let llm;
       try {
-        llm = await loadLLM(id, { device });
+        const files = {};
+        llm = await loadLLM(id, {
+          device,
+          onProgress: (e) => {
+            if (e.status === 'progress' && e.total) {
+              files[e.file] = [e.loaded, e.total];
+              const [l, t] = Object.values(files).reduce((a, [x, y]) => [a[0] + x, a[1] + y], [0, 0]);
+              $('status').textContent = `Ładuję ${id}: ${(l / 1e6).toFixed(0)} / ${(t / 1e6).toFixed(0)} MB`;
+            }
+          },
+        });
       } catch (e) {
         results.runs.push({ model: id, error: String(e) });
         $('status').textContent = `Nie udało się załadować ${id}: ${e.message}`;
