@@ -7,13 +7,13 @@
   <meta name="description" content="Malutki model AI w Twojej przeglądarce zamienia zadania z matematyki i fizyki na równania, a precyzyjny solver je rozwiązuje i sprawdza. Offline, prywatnie, za darmo.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
-  <link rel="stylesheet" href="js/style.css?v=7">
+  <link rel="stylesheet" href="js/style.css?v=8">
 </head>
 <body>
 <nav class="nav"><div class="nav-in">
   <a class="brand" href="./"><span class="logo">∑</span> Mały Matematyk</a>
   <div class="nav-links">
-    <a class="hide-sm" href="#jak">Jak to działa</a>
+    <a class="hide-sm" href="#demo">Demo</a>
     <a class="hide-sm" href="#wyniki">Wyniki</a>
     <a href="slides.html">Prezentacja</a>
     <a href="https://github.com/Rainbow2K/maly-matematyk">GitHub</a>
@@ -23,7 +23,7 @@
 
 <header class="wrap hero2">
   <div>
-    <span class="pill"><span class="dot"></span> Lokalne AI · działa w przeglądarce</span>
+    <span class="pill"><span class="dot"></span> Działa w przeglądarce</span>
     <h1>Mały model.<br><span class="grad">Bezbłędne rachunki.</span></h1>
     <p class="sub">Wpisz zadanie z matematyki albo fizyki. Model AI mniejszy niż zdjęcie z telefonu zamienia je na równanie, a precyzyjny solver podaje wynik i sam go sprawdza.</p>
     <div class="btn-row">
@@ -42,10 +42,6 @@
     </div>
   </div></div>
 </header>
-
-<div class="strip"><div class="wrap">
-  <span>Napędzane przez</span><b>transformers.js</b><b>ONNX Runtime Web</b><b>WebGPU</b><b>SmolLM2</b><b>Qwen2.5</b><b>mathjs</b>
-</div></div>
 
 <main class="wrap" style="padding:0">
   <section class="block">
@@ -67,17 +63,6 @@ d = 15 · 2.02 = <span class="r">32.3 m</span></div>
 solver → x = <span class="g">30.29 m</span>  (sprawdzone)</div>
         <div class="verdict good">✓ Dokładnie, szybciej i z dowodem poprawności</div>
       </div>
-    </div>
-  </section>
-
-  <section class="block" id="jak">
-    <div class="eyebrow">Jak to działa</div>
-    <h2 class="big">Podział pracy jak w dobrym zespole</h2>
-    <p class="lead2">AI robi to, w czym jest dobre: czyta i rozumie. Matematykę zostawiamy matematyce.</p>
-    <div class="steps">
-      <div class="card"><span class="step-n">01</span><div class="icon g">✦</div><h3>AI czyta i tłumaczy</h3><p>Model zamienia treść zadania na jedno równanie z niewiadomą x. Nie liczy niczego, więc nie ma gdzie się pomylić. Wystarcza mu kilkanaście tokenów.</p></div>
-      <div class="card"><span class="step-n">02</span><div class="icon g">∑</div><h3>Solver liczy precyzyjnie</h3><p>Deterministyczny solver numeryczny znajduje wszystkie rozwiązania i wybiera to, o które pyta zadanie, np. dodatni czas albo długość.</p></div>
-      <div class="card"><span class="step-n">03</span><div class="icon g">✓</div><h3>Wynik sprawdza się sam</h3><p>Rozwiązanie wraca do równania. Jeśli coś się nie zgadza, AI dostaje konkretną informację zwrotną i poprawia się. Bez zgadywania.</p></div>
     </div>
   </section>
 
@@ -130,23 +115,6 @@ solver → x = <span class="g">30.29 m</span>  (sprawdzone)</div>
     </div>
   </section>
 
-  <section class="block">
-    <div class="eyebrow">Dlaczego lokalnie</div>
-    <h2 class="big">Twoje zadania zostają u Ciebie</h2>
-    <p class="lead2">Bez serwera, bez logowania, bez rachunku za tokeny.</p>
-    <div class="features">
-      <div class="card"><div class="icon">🔒</div><h3>Prywatnie</h3><p>Model działa w karcie przeglądarki. Żadne dane nie wychodzą z komputera.</p></div>
-      <div class="card"><div class="icon">⚡</div><h3>Szybko</h3><p>AI pisze kilkanaście tokenów zamiast kilkuset. Wynik w kilka sekund, także na laptopie.</p></div>
-      <div class="card"><div class="icon">📴</div><h3>Offline</h3><p>Po pierwszym pobraniu model działa z cache, również bez internetu.</p></div>
-      <div class="card"><div class="icon">🪶</div><h3>Lekko</h3><p>Od 135M parametrów i ~120 MB. Wagi 4-bitowe, GPU przez WebGPU albo zwykły procesor.</p></div>
-    </div>
-  </section>
-
-  <div class="cta">
-    <h2>Sprawdź, jak liczy najmniejszy model</h2>
-    <p>Jedno kliknięcie. Bez instalacji, bez konta, bez wysyłania danych.</p>
-    <div class="btn-row"><a class="btn" href="#demo">Wypróbuj teraz →</a><a class="btn ghost" href="https://github.com/Rainbow2K/maly-matematyk">Kod na GitHubie</a></div>
-  </div>
 </main>
 <footer><span>Mały Matematyk · Local AI · Proszek do Pieczenia</span><span><a href="bench.html">Benchmark</a> · <a href="slides.html">Prezentacja</a> · <a href="https://github.com/Rainbow2K/maly-matematyk">GitHub</a></span></footer>
 
