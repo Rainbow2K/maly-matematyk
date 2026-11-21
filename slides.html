@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mały Matematyk: prezentacja</title>
+<style>
+  :root { --bg:#0f1115; --text:#e6e8ec; --muted:#9aa3b2; --accent:#7cc4ff; --good:#5bd68a; --bad:#ff7a7a; --line:#262b36; }
+  * { box-sizing: border-box; }
+  html, body { margin:0; height:100%; background:var(--bg); color:var(--text); font: 22px/1.45 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; overflow:hidden; }
+  .slide { position:absolute; inset:0; padding:7vh 9vw; display:none; flex-direction:column; justify-content:center; }
+  .slide.on { display:flex; }
+  h1 { font-size: 64px; margin:0 0 12px; letter-spacing:-.02em; }
+  h2 { font-size: 40px; margin:0 0 28px; letter-spacing:-.01em; }
+  p, li { max-width: 30em; }
+  .muted { color: var(--muted); }
+  .big { font-size: 30px; }
+  .kicker { color: var(--accent); text-transform: uppercase; letter-spacing:.12em; font-size: 15px; margin-bottom: 14px; }
+  ul { padding-left: 1.1em; margin: 0; } li { margin: 8px 0; }
+  code, .mono { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .85em; }
+  .flow { display:flex; gap:18px; align-items:stretch; flex-wrap:wrap; margin-top: 10px; }
+  .box { border:1px solid var(--line); border-radius:12px; padding:18px 20px; background:#171a21; flex:1; min-width: 220px; }
+  .box b { display:block; margin-bottom:6px; }
+  .arrow { align-self:center; color: var(--muted); font-size: 32px; }
+  .ex { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 17px; background:#0c0e12; border:1px solid var(--line); border-radius:10px; padding:14px 16px; white-space:pre-wrap; margin-top: 10px; }
+  .ex .m { color: var(--accent); } .ex .s { color: var(--good); } .ex .e { color: var(--bad); }
+  .chart { display:grid; gap:14px; margin-top: 8px; }
+  .bar-row { display:grid; grid-template-columns: 170px 1fr; gap: 14px; align-items:center; font-size: 18px; }
+  .bars { display:grid; gap:4px; }
+  .bar { height: 22px; border-radius: 4px; display:flex; align-items:center; padding-left: 8px; font-size: 14px; font-weight:600; color:#0b1220; min-width: 34px; }
+  .bar.d { background: #8b93a3; } .bar.s { background: var(--accent); }
+  .legend { display:flex; gap:20px; font-size:16px; color:var(--muted); margin-bottom: 6px; }
+  .legend span::before { content:''; display:inline-block; width:12px; height:12px; border-radius:3px; margin-right:6px; vertical-align:-1px; }
+  .legend .d::before { background:#8b93a3; } .legend .s::before { background: var(--accent); }
+  .nav { position:fixed; bottom:18px; right:24px; color:var(--muted); font-size:14px; }
+  .nav button { background:transparent; color:var(--muted); border:1px solid var(--line); border-radius:8px; padding:6px 12px; font: inherit; cursor:pointer; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<section class="slide on">
+  <div class="kicker">Local AI · zadanie eliminacyjne · Proszek do Pieczenia</div>
+  <h1>Mały Matematyk</h1>
+  <p class="big muted">Model 135M nie musi umieć liczyć. Wystarczy, że umie przetłumaczyć zadanie na równanie.</p>
+</section>
+
+<section class="slide">
+  <h2>Problem</h2>
+  <ul class="big">
+    <li>Małe modele rozumieją treść zadania, ale źle liczą.</li>
+    <li>Typowa odpowiedź: dobre rozumowanie, zły wynik w ostatnim mnożeniu.</li>
+    <li>Standardowa rada to „weź większy model”. Nas interesuje odwrotny kierunek: <b>mniej parametrów, ten sam albo lepszy wynik</b>.</li>
+  </ul>
+</section>
+
+<section class="slide">
+  <h2>Rozwiązanie: podział pracy</h2>
+  <div class="flow">
+    <div class="box"><b>1. LLM tłumaczy</b>Zadanie → jedna linia <code>EQ: … = …</code> z niewiadomą x. ~20 tokenów, zero liczenia.</div>
+    <div class="arrow">→</div>
+    <div class="box"><b>2. Solver liczy</b>Parser + przeszukanie siatki + bisekcja. Wszystkie pierwiastki rzeczywiste, wybór właściwego.</div>
+    <div class="arrow">→</div>
+    <div class="box"><b>3. Weryfikacja</b>Podstawienie, residuum. Błąd wraca do modelu jako feedback, model poprawia równanie.</div>
+  </div>
+  <p class="muted" style="margin-top:26px">Ta sama idea co w badaniach „AI dla matematyki i fizyki”: sieć proponuje kandydatów, twarda matematyka ich sprawdza (np. DeepMind, <i>Discovery of Unstable Singularities</i>, 2025).</p>
+</section>
+
+<section class="slide">
+  <h2>Przykład</h2>
+  <div class="ex">Kamień rzucony poziomo z prędkością 15 m/s z klifu 20 m. Jak daleko upadnie?
+
+<span class="m">model  ›</span> EQ: 20 = 0.5*9.81*(x/15)^2
+<span class="s">solver ›</span> pierwiastki: -30.29, 30.29 → x = 30.29 m  (residuum 1e-15)</div>
+  <div class="ex"><span class="m">model  ›</span> EQ: 0.5*m*x^2 = 4
+<span class="e">solver ›</span> unknown symbols: m. Substitute the given numbers…
+<span class="m">model  ›</span> EQ: 0.5*200*x^2 = 4
+<span class="s">solver ›</span> x = 0.2 m</div>
+</section>
+
+<section class="slide">
+  <h2>Wyniki: 34 zadania (12 równań, 22 z fizyki)</h2>
+  <div class="legend"><span class="d">LLM liczy sam (CoT)</span><span class="s">LLM + solver</span></div>
+  <div class="chart" id="chart"><p class="muted">Ładowanie wyników…</p></div>
+  <p class="muted" id="takeaway" style="margin-top:22px"></p>
+</section>
+
+<section class="slide">
+  <h2>Dlaczego lokalnie</h2>
+  <ul class="big">
+    <li>Całość działa w przeglądarce: transformers.js, WebGPU albo CPU (WASM), wagi 4-bit.</li>
+    <li>Bez serwera, bez API, bez kosztów za token. Zadania nie wychodzą z komputera.</li>
+    <li>Tryb z solverem generuje kilkanaście razy mniej tokenów niż chain-of-thought, więc jest też szybszy.</li>
+  </ul>
+</section>
+
+<section class="slide">
+  <h2>Co dalej</h2>
+  <ul class="big">
+    <li>Układy równań: model oddaje kilka równań, solver Newtona je rozwiązuje.</li>
+    <li>Fine-tune 135M tylko na tłumaczenie zadań → równania (zadanie jest wąskie, więc mały model wystarczy).</li>
+    <li>Polski: dotrenowanie na polskich zbiorach zadań maturalnych.</li>
+  </ul>
+  <p style="margin-top:30px">Demo: <a href="./">rainbow2k.github.io/maly-matematyk</a><br>Kod: <a href="https://github.com/Rainbow2K/maly-matematyk">github.com/Rainbow2K/maly-matematyk</a></p>
+</section>
+
+<div class="nav"><button id="prev">←</button> <span id="num"></span> <button id="next">→</button></div>
+
+<script>
+  const slides = [...document.querySelectorAll('.slide')];
+  let i = 0;
+  const go = (k) => { slides[i].classList.remove('on'); i = Math.max(0, Math.min(slides.length - 1, k)); slides[i].classList.add('on'); document.getElementById('num').textContent = `${i + 1} / ${slides.length}`; };
+  document.getElementById('prev').onclick = () => go(i - 1);
+  document.getElementById('next').onclick = () => go(i + 1);
+  addEventListener('keydown', (e) => { if (['ArrowRight', 'PageDown', ' '].includes(e.key)) go(i + 1); if (['ArrowLeft', 'PageUp'].includes(e.key)) go(i - 1); });
+  addEventListener('click', (e) => { if (!e.target.closest('a,button')) go(i + 1); });
+  go(0);
+
+  fetch('results/summary.json').then((r) => r.json()).then((rows) => {
+    const chart = document.getElementById('chart'); chart.innerHTML = '';
+    const byModel = {};
+    for (const r of rows) (byModel[r.label] ||= { params: r.params })[r.mode] = r;
+    for (const [label, m] of Object.entries(byModel)) {
+      const div = document.createElement('div'); div.className = 'bar-row';
+      const pct = (r) => r ? Math.round(100 * r.correct / r.n) : 0;
+      div.innerHTML = `<div>${label}<br><span class="muted" style="font-size:14px">${(m.params / 1e6).toFixed(0)}M parametrów</span></div>
+        <div class="bars"><div class="bar d" style="width:${pct(m.direct)}%">${pct(m.direct)}%</div><div class="bar s" style="width:${pct(m.solver)}%">${pct(m.solver)}%</div></div>`;
+      chart.append(div);
+    }
+    fetch('results/takeaway.txt').then((r) => r.ok ? r.text() : '').then((t) => { document.getElementById('takeaway').textContent = t; });
+  }).catch(() => { document.getElementById('chart').innerHTML = '<p class="muted">Wyniki w README repozytorium.</p>'; });
+</script>
+</body>
+</html>
