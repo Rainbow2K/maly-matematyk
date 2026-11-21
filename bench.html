@@ -3,35 +3,66 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Mały Matematyk: benchmark</title>
+  <title>Benchmark · Mały Matematyk</title>
   <link rel="stylesheet" href="js/style.css">
 </head>
 <body>
+<nav class="nav"><div class="nav-in">
+  <a class="brand" href="./"><span class="logo">∑</span> Mały Matematyk</a>
+  <div class="nav-links">
+    <a href="./">Aplikacja</a>
+    <a class="active" href="bench.html">Benchmark</a>
+    <a class="hide-sm" href="slides.html">Prezentacja</a>
+    <a href="https://github.com/Rainbow2K/maly-matematyk">GitHub</a>
+  </div>
+</div></nav>
 <main>
-  <h1>Benchmark</h1>
-  <p class="lead">34 zadania (12 równań, 22 z fizyki). Każdy model rozwiązuje je dwa razy: sam (chain-of-thought, do 320 tokenów) i jako tłumacz równań dla solvera (do 48 tokenów, max 2 poprawki). Wynik poprawny, jeśli błąd względny ≤ 1%.</p>
-  <div class="panel">
+  <section class="hero">
+    <span class="pill"><span class="dot"></span> Sprawdź sam, na swoim sprzęcie</span>
+    <h1>Czy mały model z solverem<br><span class="grad">pokona dużego?</span></h1>
+    <p>34 zadania: 12 równań i 22 zadania z fizyki. Każdy model rozwiązuje je dwa razy: najpierw sam, krok po kroku, potem jako tłumacz dla solvera. Liczymy trafienia z dokładnością do 1%.</p>
+  </section>
+
+  <div class="card">
+    <p class="card-title">Ustawienia</p>
+    <label class="field">Modele</label>
+    <div class="seg four" id="models"></div>
+    <div class="spacer"></div>
+    <label class="field">Tryby</label>
+    <div class="seg">
+      <input type="checkbox" id="m-direct" checked><label for="m-direct"><b>Samo AI</b><span>rozumowanie krok po kroku, do 320 tokenów</span></label>
+      <input type="checkbox" id="m-solver" checked><label for="m-solver"><b>AI + solver</b><span>tylko równanie, do 48 tokenów, max 2 poprawki</span></label>
+    </div>
+    <div class="spacer"></div>
     <div class="row">
-      <span id="models"></span>
+      <button id="run">Uruchom benchmark</button>
+      <button class="ghost" id="dl">Pobierz wyniki (JSON)</button>
+      <span class="badge live" id="device">sprzęt…</span>
     </div>
-    <div class="row" style="margin-top:10px">
-      <label><input type="checkbox" id="m-direct" checked> LLM sam</label>
-      <label><input type="checkbox" id="m-solver" checked> LLM + solver</label>
-      <button id="run">Start</button>
-      <button class="ghost" id="dl">Pobierz JSON</button>
-    </div>
+    <div class="progress"><div id="bar"></div></div>
     <div class="status" id="status"></div>
   </div>
 
-  <h2>Podsumowanie</h2>
-  <table id="summary"><thead><tr><th>Model</th><th class="num">Parametry</th><th>Tryb</th><th class="num">Równania</th><th class="num">Fizyka</th><th class="num">Razem</th><th class="num">Śr. czas</th><th class="num">Śr. tokeny</th></tr></thead><tbody></tbody></table>
+  <div class="card">
+    <p class="card-title">Wyniki</p>
+    <div class="table-wrap"><table id="summary"><thead><tr><th>Model</th><th class="num">Parametry</th><th>Tryb</th><th class="num">Równania</th><th class="num">Fizyka</th><th class="num">Skuteczność</th><th class="num">Śr. czas</th><th class="num">Śr. tokeny</th></tr></thead><tbody></tbody></table></div>
+  </div>
 
-  <h2>Szczegóły</h2>
-  <table id="detail"><thead><tr><th>Model</th><th>Tryb</th><th>Zadanie</th><th class="num">Oczekiwane</th><th class="num">Wynik</th><th>OK</th><th>Wyjście modelu</th></tr></thead><tbody></tbody></table>
+  <div class="card">
+    <details>
+      <summary>Szczegóły każdego zadania</summary>
+      <div class="table-wrap" style="margin-top:12px"><table id="detail"><thead><tr><th>Model</th><th>Tryb</th><th>Zadanie</th><th class="num">Oczekiwane</th><th class="num">Wynik</th><th></th><th>Odpowiedź modelu</th></tr></thead><tbody></tbody></table></div>
+    </details>
+  </div>
 
-  <h2>JSON</h2>
-  <pre id="json">{}</pre>
+  <div class="card">
+    <details>
+      <summary>Surowe dane (JSON)</summary>
+      <pre id="json">{}</pre>
+    </details>
+  </div>
 </main>
+<footer><span>Mały Matematyk · Local AI · Proszek do Pieczenia</span><span>transformers.js · WebGPU · mathjs</span></footer>
 <script type="module">
   import * as math from 'https://cdn.jsdelivr.net/npm/mathjs@13.2.3/+esm';
   import { makeSolver, fmt, isCorrect } from './js/solver.js';
@@ -44,10 +75,8 @@
   const params = new URLSearchParams(location.search);
   const only = params.get('models') ? params.get('models').split(',') : null;
   for (const [i, m] of MODELS.entries()) {
-    const l = document.createElement('label');
-    l.style.marginRight = '12px';
-    l.innerHTML = `<input type="checkbox" data-id="${m.id}" ${!only || only.includes(String(i)) ? 'checked' : ''}> ${m.label}`;
-    $('models').append(l);
+    $('models').insertAdjacentHTML('beforeend',
+      `<input type="checkbox" id="mb${i}" data-id="${m.id}" ${!only || only.includes(String(i)) ? 'checked' : ''}><label for="mb${i}"><b>${m.label.replace(/^\S+ /, '')}</b><span>${m.label.split(' ')[0]}</span></label>`);
   }
   if (params.get('modes')) {
     const ms = params.get('modes').split(',');
@@ -72,9 +101,10 @@
       const cnt = (cat) => { const a = rs.filter((r) => r.cat === cat); return `${a.filter((r) => r.ok).length}/${a.length}`; };
       const ok = rs.filter((r) => r.ok).length;
       const tr = tb.insertRow();
-      tr.innerHTML = `<td>${m.label}</td><td class="num">${(m.params / 1e6).toFixed(0)}M</td><td>${mode === 'solver' ? 'LLM + solver' : 'LLM sam'}</td>
+      const pct = (100 * ok / rs.length).toFixed(0);
+      tr.innerHTML = `<td><b>${m.label}</b></td><td class="num">${(m.params / 1e6).toFixed(0)}M</td><td><span class="mode-tag ${mode}">${mode === 'solver' ? 'AI + solver' : 'samo AI'}</span></td>
         <td class="num">${cnt('equation')}</td><td class="num">${cnt('physics')}</td>
-        <td class="num"><b>${(100 * ok / rs.length).toFixed(0)}%</b> (${ok}/${rs.length})</td>
+        <td class="num"><div class="score"><div class="track"><div style="width:${pct}%"></div></div><b>${pct}%</b></div></td>
         <td class="num">${(rs.reduce((a, r) => a + r.ms, 0) / rs.length / 1000).toFixed(1)} s</td>
         <td class="num">${(rs.reduce((a, r) => a + (r.tokens || 0), 0) / rs.length).toFixed(0)}</td>`;
     }
@@ -84,7 +114,7 @@
     const tr = $('detail').tBodies[0].insertRow();
     const m = MODELS.find((x) => x.id === r.model);
     const out = r.trace.filter((s) => s.role === 'model').map((s) => s.text.trim()).join(' ⟲ ').slice(0, 160);
-    tr.innerHTML = `<td>${m.label}</td><td>${r.mode}</td><td>${r.id}</td><td class="num">${fmt(r.expected)}</td><td class="num">${fmt(r.x)}</td>
+    tr.innerHTML = `<td>${m.label}</td><td><span class="mode-tag ${r.mode}">${r.mode === 'solver' ? 'AI + solver' : 'samo AI'}</span></td><td>${r.id}</td><td class="num">${fmt(r.expected)}</td><td class="num">${fmt(r.x)}</td>
       <td class="${r.ok ? 'ok' : 'no'}">${r.ok ? '✓' : '✗'}</td><td class="small"></td>`;
     tr.cells[6].textContent = out;
   }
@@ -93,6 +123,7 @@
     $('run').disabled = true;
     const chosen = [...document.querySelectorAll('#models input:checked')].map((i) => i.dataset.id);
     const modes = [$('m-direct').checked && 'direct', $('m-solver').checked && 'solver'].filter(Boolean);
+    const total = chosen.length * modes.length * problems.length; let done = 0;
     for (const id of chosen) {
       $('status').textContent = `Ładuję ${id}…`;
       let llm;
@@ -116,7 +147,8 @@
       results.dtype = llm.dtype;
       for (const mode of modes) {
         for (const [i, p] of problems.entries()) {
-          $('status').textContent = `${id} · ${mode} · ${i + 1}/${problems.length}`;
+          $('status').textContent = `${MODELS.find((x) => x.id === id).label} · ${mode === 'solver' ? 'AI + solver' : 'samo AI'} · zadanie ${i + 1} z ${problems.length}`;
+          done++; $('bar').style.width = `${(100 * done / total).toFixed(1)}%`;
           let r;
           try {
             r = mode === 'solver' ? await solveWithSolver(p, llm, solver) : await solveDirect(p, llm);
@@ -132,7 +164,7 @@
     }
     results.finished = new Date().toISOString();
     show();
-    $('status').textContent = 'Gotowe.';
+    $('status').textContent = 'Gotowe. Wyniki możesz pobrać jako JSON.';
     document.title = 'DONE · benchmark';
     $('run').disabled = false;
   }
@@ -143,7 +175,7 @@
     a.href = URL.createObjectURL(new Blob([JSON.stringify(results, null, 1)], { type: 'application/json' }));
     a.download = 'wyniki.json'; a.click();
   };
-  $('status').textContent = `Urządzenie: ${device === 'webgpu' ? 'GPU (WebGPU)' : 'CPU (WASM)'}`;
+  $('device').textContent = device === 'webgpu' ? 'GPU · WebGPU' : 'CPU · WASM';
   if (params.get('auto') === '1') run();
 </script>
 </body>

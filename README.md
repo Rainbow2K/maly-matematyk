@@ -1,11 +1,18 @@
-# Mały Matematyk
+# ∑ Mały Matematyk
 
-**Mały, lokalny LLM tłumaczy zadanie na równanie. Liczy deterministyczny solver.**
+### Mały model. Bezbłędne rachunki.
+
+Wpisz zadanie z matematyki albo fizyki. Model AI mniejszy niż zdjęcie z telefonu zamienia je na równanie, a precyzyjny solver podaje wynik i sam go sprawdza. Wszystko działa w przeglądarce: offline, prywatnie i bez kosztów za API.
+
+**[Otwórz aplikację](https://rainbow2k.github.io/maly-matematyk/)** · **[Benchmark](https://rainbow2k.github.io/maly-matematyk/bench.html)** · **[Prezentacja](https://rainbow2k.github.io/maly-matematyk/slides.html)**
+
 Zadanie eliminacyjne Local AI (BEST Gdańsk), drużyna Proszek do Pieczenia.
 
-- Demo (działa w przeglądarce, nic nie wychodzi z komputera): https://rainbow2k.github.io/maly-matematyk/
-- Benchmark do odpalenia u siebie: https://rainbow2k.github.io/maly-matematyk/bench.html
-- Prezentacja: https://rainbow2k.github.io/maly-matematyk/slides.html
+| | |
+|---|---|
+| **od 135M parametrów** | tyle wystarczy, żeby rozwiązywać zadania z fizyki |
+| **0 zł** | żadnego API, żadnej chmury |
+| **0 bajtów** | danych wysłanych na serwer |
 
 ## Pomysł
 

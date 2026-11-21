@@ -166,7 +166,7 @@ export function makeSolver(math) {
 }
 
 export function fmt(v) {
-  if (v === null || v === undefined || Number.isNaN(v)) return '—';
+  if (v === null || v === undefined || Number.isNaN(v)) return 'brak';
   if (Math.abs(v) >= 1e5 || (Math.abs(v) < 1e-3 && v !== 0)) return v.toExponential(4);
   return String(+v.toPrecision(6));
 }

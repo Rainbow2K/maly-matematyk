@@ -3,39 +3,77 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Mały Matematyk: lokalny LLM + solver</title>
+  <title>Mały Matematyk · lokalne AI, które nie myli się w rachunkach</title>
+  <meta name="description" content="Malutki model językowy w Twojej przeglądarce zamienia zadania z matematyki i fizyki na równania, a precyzyjny solver je rozwiązuje. Offline, prywatnie, za darmo.">
   <link rel="stylesheet" href="js/style.css">
 </head>
 <body>
-<main>
-  <h1>Mały Matematyk</h1>
-  <p class="lead">Mały model językowy (135M–1.5B parametrów) działa w całości w Twojej przeglądarce. Nie liczy sam, tylko tłumaczy zadanie na równanie. Liczy deterministyczny solver, a jeśli równanie jest błędne, model dostaje feedback i poprawia się. Żadne dane nie wychodzą z komputera.</p>
-
-  <div class="panel">
-    <div class="row">
-      <label>Model <select id="model"></select></label>
-      <label>Tryb
-        <select id="mode">
-          <option value="solver">LLM tłumaczy → solver liczy</option>
-          <option value="direct">LLM liczy sam (baseline)</option>
-        </select>
-      </label>
-      <span class="small" id="device"></span>
-    </div>
-    <p style="margin:12px 0 6px">Zadanie (po angielsku, małe modele słabo znają polski):</p>
-    <textarea id="q">A stone is thrown horizontally at 15 m/s from the top of a cliff 20 m high. Using g = 9.81 m/s^2, how far from the base of the cliff, in meters, does it land?</textarea>
-    <div class="chips" id="examples"></div>
-    <div class="row" style="margin-top:12px">
-      <button id="run">Rozwiąż</button>
-      <a href="bench.html">Benchmark →</a>
-      <a href="slides.html">Prezentacja →</a>
-      <a href="https://github.com/Rainbow2K/maly-matematyk">Kod →</a>
-    </div>
-    <div class="status" id="status"></div>
-    <div class="answer" id="answer"></div>
-    <div class="trace" id="trace"></div>
+<nav class="nav"><div class="nav-in">
+  <a class="brand" href="./"><span class="logo">∑</span> Mały Matematyk</a>
+  <div class="nav-links">
+    <a class="active" href="./">Aplikacja</a>
+    <a href="bench.html">Benchmark</a>
+    <a class="hide-sm" href="slides.html">Prezentacja</a>
+    <a href="https://github.com/Rainbow2K/maly-matematyk">GitHub</a>
   </div>
+</div></nav>
+
+<main>
+  <section class="hero">
+    <span class="pill"><span class="dot"></span> Działa w 100% w Twojej przeglądarce</span>
+    <h1>Mały model.<br><span class="grad">Bezbłędne rachunki.</span></h1>
+    <p>Wpisz zadanie z matematyki albo fizyki. Model AI mniejszy niż zdjęcie z telefonu zamienia je na równanie, a precyzyjny solver podaje wynik i sam go sprawdza. Offline, prywatnie, za darmo.</p>
+    <div class="stats">
+      <div class="stat"><b>od 135M</b><span>parametrów wystarczy</span></div>
+      <div class="stat"><b>0 zł</b><span>bez API i bez chmury</span></div>
+      <div class="stat"><b>0 bajtów</b><span>wysłanych na serwer</span></div>
+    </div>
+  </section>
+
+  <section class="app">
+    <div class="card">
+      <p class="card-title">Zadanie</p>
+      <label class="field">Model AI</label>
+      <div class="seg four" id="models"></div>
+      <div class="spacer"></div>
+      <label class="field">Tryb pracy</label>
+      <div class="seg">
+        <input type="radio" name="mode" id="mode-solver" value="solver" checked>
+        <label for="mode-solver"><b>AI + solver</b><span>AI tłumaczy, solver liczy</span></label>
+        <input type="radio" name="mode" id="mode-direct" value="direct">
+        <label for="mode-direct"><b>Samo AI</b><span>dla porównania</span></label>
+      </div>
+      <div class="spacer"></div>
+      <label class="field" for="q">Treść zadania <span class="small">(po angielsku, tak małe modele najlepiej rozumieją ten język)</span></label>
+      <textarea id="q">A stone is thrown horizontally at 15 m/s from the top of a cliff 20 m high. Using g = 9.81 m/s^2, how far from the base of the cliff, in meters, does it land?</textarea>
+      <div class="chips" id="examples"></div>
+      <div class="spacer"></div>
+      <button class="big" id="run">Rozwiąż zadanie</button>
+      <div class="progress" id="prog" hidden><div></div></div>
+      <div class="status" id="status"></div>
+    </div>
+
+    <div class="card">
+      <div class="row" style="justify-content:space-between; margin-bottom:14px">
+        <p class="card-title" style="margin:0">Rozwiązanie</p>
+        <span class="badge live" id="device">sprawdzam sprzęt…</span>
+      </div>
+      <div class="result-empty" id="empty"><span class="big-icon">∑</span>Tu pojawi się równanie, kroki solvera i wynik.<br>Przy pierwszym uruchomieniu model pobiera się raz, potem działa z pamięci przeglądarki.</div>
+      <div class="answer" id="answer"><small>Wynik</small><div class="val" id="val"></div><div class="meta" id="meta"></div></div>
+      <div class="trace" id="trace"></div>
+    </div>
+  </section>
+
+  <h2 class="section-h">Jak to działa</h2>
+  <p class="section-sub">Małe modele świetnie rozumieją treść zadania, ale mylą się w rachunkach. Dlatego dzielimy pracę: AI robi to, w czym jest dobre, a matematykę zostawiamy matematyce.</p>
+  <section class="how">
+    <div class="card"><div class="num">1</div><h3>AI czyta i tłumaczy</h3><p>Model zamienia treść zadania na jedno równanie z niewiadomą x. Nie liczy niczego, więc nie ma gdzie się pomylić. Wystarczy mu kilkanaście tokenów.</p></div>
+    <div class="card"><div class="num">2</div><h3>Solver liczy precyzyjnie</h3><p>Deterministyczny solver numeryczny znajduje wszystkie rozwiązania i wybiera to, o które pyta zadanie, np. dodatni czas albo długość.</p></div>
+    <div class="card"><div class="num">3</div><h3>Wynik sprawdza się sam</h3><p>Rozwiązanie jest podstawiane z powrotem do równania. Jeśli coś się nie zgadza, AI dostaje konkretną informację zwrotną i poprawia się.</p></div>
+  </section>
 </main>
+<footer><span>Mały Matematyk · Local AI · Proszek do Pieczenia</span><span>transformers.js · WebGPU · mathjs</span></footer>
+
 <script type="module">
   import * as math from 'https://cdn.jsdelivr.net/npm/mathjs@13.2.3/+esm';
   import { makeSolver, fmt } from './js/solver.js';
@@ -45,14 +83,17 @@
 
   const solver = makeSolver(math);
   const $ = (id) => document.getElementById(id);
-  for (const m of MODELS) $('model').add(new Option(`${m.label}`, m.id));
-  $('model').value = MODELS[1].id;
+  const sizes = { 'HuggingFaceTB/SmolLM2-135M-Instruct': '~120 MB', 'HuggingFaceTB/SmolLM2-360M-Instruct': '~275 MB', 'onnx-community/Qwen2.5-0.5B-Instruct': '~480 MB', 'onnx-community/Qwen2.5-1.5B-Instruct': '~1.1 GB' };
+  MODELS.forEach((m, i) => {
+    $('models').insertAdjacentHTML('beforeend',
+      `<input type="radio" name="model" id="m${i}" value="${m.id}" ${i === 1 ? 'checked' : ''}><label for="m${i}"><b>${m.label.replace(/^\S+ /, '')}</b><span>${m.label.split(' ')[0]} · ${sizes[m.id]}</span></label>`);
+  });
   const device = await detectDevice();
-  $('device').textContent = device === 'webgpu' ? 'GPU (WebGPU)' : 'CPU (WASM)';
+  $('device').textContent = device === 'webgpu' ? 'GPU · WebGPU' : 'CPU · WASM';
   for (const id of ['e10', 'p13', 'p21', 'p22']) {
     const p = PROBLEMS.find((x) => x.id === id);
     const b = document.createElement('button');
-    b.className = 'chip'; b.textContent = p.q.slice(0, 48) + '…';
+    b.className = 'chip'; b.textContent = p.q.length > 44 ? p.q.slice(0, 44) + '…' : p.q;
     b.onclick = () => { $('q').value = p.q; };
     $('examples').append(b);
   }
@@ -62,16 +103,19 @@
     if (llm && llm.modelId === id) return llm;
     if (llm) await llm.dispose();
     const files = {};
+    $('prog').hidden = false;
     llm = await loadLLM(id, {
       device,
       onProgress: (e) => {
         if (e.status === 'progress' && e.total) {
           files[e.file] = [e.loaded, e.total];
           const [l, t] = Object.values(files).reduce((a, [x, y]) => [a[0] + x, a[1] + y], [0, 0]);
-          $('status').textContent = `Pobieram model (jednorazowo, potem z cache): ${(l / 1e6).toFixed(0)} / ${(t / 1e6).toFixed(0)} MB`;
+          $('prog').firstElementChild.style.width = `${(100 * l / t).toFixed(1)}%`;
+          $('status').textContent = `Pobieram model (tylko za pierwszym razem): ${(l / 1e6).toFixed(0)} / ${(t / 1e6).toFixed(0)} MB`;
         }
       },
     });
+    $('prog').hidden = true;
     return llm;
   }
 
@@ -81,26 +125,28 @@
       const d = document.createElement('div');
       const err = s.role === 'solver' && s.text.startsWith('błąd');
       d.className = `step ${err ? 'err' : s.role}`;
-      d.innerHTML = `<span class="who">${s.role === 'model' ? 'model' : 'solver'}</span>`;
-      d.append(document.createTextNode(s.text));
+      d.innerHTML = `<span class="who">${s.role === 'model' ? 'model AI' : err ? 'solver · poprawka' : 'solver'}</span>`;
+      d.append(document.createTextNode(s.text.trim()));
       $('trace').append(d);
     }
   }
 
   $('run').onclick = async () => {
-    $('run').disabled = true; $('answer').textContent = ''; $('trace').innerHTML = '';
+    $('run').disabled = true; $('answer').classList.remove('show'); $('trace').innerHTML = ''; $('empty').hidden = true;
     try {
-      const m = await getLLM($('model').value);
-      $('status').textContent = 'Model myśli…';
+      const m = await getLLM(document.querySelector('input[name=model]:checked').value);
+      $('status').textContent = 'Model analizuje zadanie…';
       const problem = { q: $('q').value.trim(), pick: 'pos' };
-      const r = $('mode').value === 'solver'
-        ? await solveWithSolver(problem, m, solver)
-        : await solveDirect(problem, m);
+      const mode = document.querySelector('input[name=mode]:checked').value;
+      const r = mode === 'solver' ? await solveWithSolver(problem, m, solver) : await solveDirect(problem, m);
       render(r.trace);
-      $('answer').textContent = r.x === null ? 'Brak wyniku' : `x = ${fmt(r.x)}`;
-      $('status').textContent = `${(r.ms / 1000).toFixed(1)} s, próby: ${r.attempts}`;
+      $('val').textContent = r.x === null ? 'brak wyniku' : `x = ${fmt(r.x)}`;
+      $('meta').textContent = `${(r.ms / 1000).toFixed(1)} s · ${r.attempts === 1 ? 'za pierwszym podejściem' : `podejść: ${r.attempts}`} · ${mode === 'solver' ? 'sprawdzone podstawieniem' : 'bez weryfikacji'}`;
+      $('answer').classList.add('show');
+      $('status').textContent = '';
     } catch (e) {
-      $('status').textContent = 'Błąd: ' + e.message;
+      $('status').textContent = 'Coś poszło nie tak: ' + e.message;
+      $('empty').hidden = false;
       console.error(e);
     }
     $('run').disabled = false;
