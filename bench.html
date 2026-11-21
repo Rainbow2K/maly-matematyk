@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mały Matematyk: benchmark</title>
+  <link rel="stylesheet" href="js/style.css">
+</head>
+<body>
+<main>
+  <h1>Benchmark</h1>
+  <p class="lead">34 zadania (12 równań, 22 z fizyki). Każdy model rozwiązuje je dwa razy: sam (chain-of-thought, do 320 tokenów) i jako tłumacz równań dla solvera (do 48 tokenów, max 2 poprawki). Wynik poprawny, jeśli błąd względny ≤ 1%.</p>
+  <div class="panel">
+    <div class="row">
+      <span id="models"></span>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <label><input type="checkbox" id="m-direct" checked> LLM sam</label>
+      <label><input type="checkbox" id="m-solver" checked> LLM + solver</label>
+      <button id="run">Start</button>
+      <button class="ghost" id="dl">Pobierz JSON</button>
+    </div>
+    <div class="status" id="status"></div>
+  </div>
+
+  <h2>Podsumowanie</h2>
+  <table id="summary"><thead><tr><th>Model</th><th class="num">Parametry</th><th>Tryb</th><th class="num">Równania</th><th class="num">Fizyka</th><th class="num">Razem</th><th class="num">Śr. czas</th><th class="num">Śr. tokeny</th></tr></thead><tbody></tbody></table>
+
+  <h2>Szczegóły</h2>
+  <table id="detail"><thead><tr><th>Model</th><th>Tryb</th><th>Zadanie</th><th class="num">Oczekiwane</th><th class="num">Wynik</th><th>OK</th><th>Wyjście modelu</th></tr></thead><tbody></tbody></table>
+
+  <h2>JSON</h2>
+  <pre id="json">{}</pre>
+</main>
+<script type="module">
+  import * as math from 'https://cdn.jsdelivr.net/npm/mathjs@13.2.3/+esm';
+  import { makeSolver, fmt, isCorrect } from './js/solver.js';
+  import { solveDirect, solveWithSolver } from './js/agent.js';
+  import { MODELS, loadLLM, detectDevice } from './js/llm.js';
+  import { PROBLEMS } from './js/problems.js';
+
+  const solver = makeSolver(math);
+  const $ = (id) => document.getElementById(id);
+  const params = new URLSearchParams(location.search);
+  const only = params.get('models') ? params.get('models').split(',') : null;
+  for (const [i, m] of MODELS.entries()) {
+    const l = document.createElement('label');
+    l.style.marginRight = '12px';
+    l.innerHTML = `<input type="checkbox" data-id="${m.id}" ${!only || only.includes(String(i)) ? 'checked' : ''}> ${m.label}`;
+    $('models').append(l);
+  }
+  if (params.get('modes')) {
+    const ms = params.get('modes').split(',');
+    $('m-direct').checked = ms.includes('direct');
+    $('m-solver').checked = ms.includes('solver');
+  }
+  const limit = params.get('n') ? +params.get('n') : PROBLEMS.length;
+  const problems = PROBLEMS.slice(0, limit);
+
+  const device = await detectDevice();
+  const results = { device, started: new Date().toISOString(), userAgent: navigator.userAgent, runs: [] };
+  window.__bench = results;
+
+  function show() {
+    $('json').textContent = JSON.stringify(results, null, 1);
+    const tb = $('summary').tBodies[0]; tb.innerHTML = '';
+    const groups = {};
+    for (const r of results.runs) (groups[r.model + '|' + r.mode] ||= []).push(r);
+    for (const [k, rs] of Object.entries(groups)) {
+      const [model, mode] = k.split('|');
+      const m = MODELS.find((x) => x.id === model);
+      const cnt = (cat) => { const a = rs.filter((r) => r.cat === cat); return `${a.filter((r) => r.ok).length}/${a.length}`; };
+      const ok = rs.filter((r) => r.ok).length;
+      const tr = tb.insertRow();
+      tr.innerHTML = `<td>${m.label}</td><td class="num">${(m.params / 1e6).toFixed(0)}M</td><td>${mode === 'solver' ? 'LLM + solver' : 'LLM sam'}</td>
+        <td class="num">${cnt('equation')}</td><td class="num">${cnt('physics')}</td>
+        <td class="num"><b>${(100 * ok / rs.length).toFixed(0)}%</b> (${ok}/${rs.length})</td>
+        <td class="num">${(rs.reduce((a, r) => a + r.ms, 0) / rs.length / 1000).toFixed(1)} s</td>
+        <td class="num">${(rs.reduce((a, r) => a + (r.tokens || 0), 0) / rs.length).toFixed(0)}</td>`;
+    }
+  }
+
+  function row(r) {
+    const tr = $('detail').tBodies[0].insertRow();
+    const m = MODELS.find((x) => x.id === r.model);
+    const out = r.trace.filter((s) => s.role === 'model').map((s) => s.text.trim()).join(' ⟲ ').slice(0, 160);
+    tr.innerHTML = `<td>${m.label}</td><td>${r.mode}</td><td>${r.id}</td><td class="num">${fmt(r.expected)}</td><td class="num">${fmt(r.x)}</td>
+      <td class="${r.ok ? 'ok' : 'no'}">${r.ok ? '✓' : '✗'}</td><td class="small"></td>`;
+    tr.cells[6].textContent = out;
+  }
+
+  async function run() {
+    $('run').disabled = true;
+    const chosen = [...document.querySelectorAll('#models input:checked')].map((i) => i.dataset.id);
+    const modes = [$('m-direct').checked && 'direct', $('m-solver').checked && 'solver'].filter(Boolean);
+    for (const id of chosen) {
+      $('status').textContent = `Ładuję ${id}…`;
+      let llm;
+      try {
+        llm = await loadLLM(id, { device });
+      } catch (e) {
+        results.runs.push({ model: id, error: String(e) });
+        $('status').textContent = `Nie udało się załadować ${id}: ${e.message}`;
+        continue;
+      }
+      results.dtype = llm.dtype;
+      for (const mode of modes) {
+        for (const [i, p] of problems.entries()) {
+          $('status').textContent = `${id} · ${mode} · ${i + 1}/${problems.length}`;
+          let r;
+          try {
+            r = mode === 'solver' ? await solveWithSolver(p, llm, solver) : await solveDirect(p, llm);
+          } catch (e) {
+            r = { x: null, attempts: 0, trace: [{ role: 'solver', text: 'wyjątek: ' + e.message }], ms: 0, tokens: 0 };
+          }
+          const rec = { model: id, mode, id: p.id, cat: p.cat, expected: p.a, x: r.x, ok: isCorrect(r.x, p.a), attempts: r.attempts, ms: Math.round(r.ms), tokens: r.tokens, trace: r.trace };
+          results.runs.push(rec);
+          row(rec); show();
+        }
+      }
+      await llm.dispose();
+    }
+    results.finished = new Date().toISOString();
+    show();
+    $('status').textContent = 'Gotowe.';
+    document.title = 'DONE · benchmark';
+    $('run').disabled = false;
+  }
+
+  $('run').onclick = run;
+  $('dl').onclick = () => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(results, null, 1)], { type: 'application/json' }));
+    a.download = 'wyniki.json'; a.click();
+  };
+  $('status').textContent = `Urządzenie: ${device === 'webgpu' ? 'GPU (WebGPU)' : 'CPU (WASM)'}`;
+  if (params.get('auto') === '1') run();
+</script>
+</body>
+</html>

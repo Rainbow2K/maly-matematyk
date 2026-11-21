@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mały Matematyk: lokalny LLM + solver</title>
+  <link rel="stylesheet" href="js/style.css">
+</head>
+<body>
+<main>
+  <h1>Mały Matematyk</h1>
+  <p class="lead">Mały model językowy (135M–1.5B parametrów) działa w całości w Twojej przeglądarce. Nie liczy sam, tylko tłumaczy zadanie na równanie. Liczy deterministyczny solver, a jeśli równanie jest błędne, model dostaje feedback i poprawia się. Żadne dane nie wychodzą z komputera.</p>
+
+  <div class="panel">
+    <div class="row">
+      <label>Model <select id="model"></select></label>
+      <label>Tryb
+        <select id="mode">
+          <option value="solver">LLM tłumaczy → solver liczy</option>
+          <option value="direct">LLM liczy sam (baseline)</option>
+        </select>
+      </label>
+      <span class="small" id="device"></span>
+    </div>
+    <p style="margin:12px 0 6px">Zadanie (po angielsku, małe modele słabo znają polski):</p>
+    <textarea id="q">A stone is thrown horizontally at 15 m/s from the top of a cliff 20 m high. Using g = 9.81 m/s^2, how far from the base of the cliff, in meters, does it land?</textarea>
+    <div class="chips" id="examples"></div>
+    <div class="row" style="margin-top:12px">
+      <button id="run">Rozwiąż</button>
+      <a href="bench.html">Benchmark →</a>
+      <a href="slides.html">Prezentacja →</a>
+      <a href="https://github.com/Rainbow2K/maly-matematyk">Kod →</a>
+    </div>
+    <div class="status" id="status"></div>
+    <div class="answer" id="answer"></div>
+    <div class="trace" id="trace"></div>
+  </div>
+</main>
+<script type="module">
+  import * as math from 'https://cdn.jsdelivr.net/npm/mathjs@13.2.3/+esm';
+  import { makeSolver, fmt } from './js/solver.js';
+  import { solveDirect, solveWithSolver } from './js/agent.js';
+  import { MODELS, loadLLM, detectDevice } from './js/llm.js';
+  import { PROBLEMS } from './js/problems.js';
+
+  const solver = makeSolver(math);
+  const $ = (id) => document.getElementById(id);
+  for (const m of MODELS) $('model').add(new Option(`${m.label}`, m.id));
+  $('model').value = MODELS[1].id;
+  const device = await detectDevice();
+  $('device').textContent = device === 'webgpu' ? 'GPU (WebGPU)' : 'CPU (WASM)';
+  for (const id of ['e10', 'p13', 'p21', 'p22']) {
+    const p = PROBLEMS.find((x) => x.id === id);
+    const b = document.createElement('button');
+    b.className = 'chip'; b.textContent = p.q.slice(0, 48) + '…';
+    b.onclick = () => { $('q').value = p.q; };
+    $('examples').append(b);
+  }
+
+  let llm = null;
+  async function getLLM(id) {
+    if (llm && llm.modelId === id) return llm;
+    if (llm) await llm.dispose();
+    const files = {};
+    llm = await loadLLM(id, {
+      device,
+      onProgress: (e) => {
+        if (e.status === 'progress' && e.total) {
+          files[e.file] = [e.loaded, e.total];
+          const [l, t] = Object.values(files).reduce((a, [x, y]) => [a[0] + x, a[1] + y], [0, 0]);
+          $('status').textContent = `Pobieram model (jednorazowo, potem z cache): ${(l / 1e6).toFixed(0)} / ${(t / 1e6).toFixed(0)} MB`;
+        }
+      },
+    });
+    return llm;
+  }
+
+  function render(trace) {
+    $('trace').innerHTML = '';
+    for (const s of trace) {
+      const d = document.createElement('div');
+      const err = s.role === 'solver' && s.text.startsWith('błąd');
+      d.className = `step ${err ? 'err' : s.role}`;
+      d.innerHTML = `<span class="who">${s.role === 'model' ? 'model' : 'solver'}</span>`;
+      d.append(document.createTextNode(s.text));
+      $('trace').append(d);
+    }
+  }
+
+  $('run').onclick = async () => {
+    $('run').disabled = true; $('answer').textContent = ''; $('trace').innerHTML = '';
+    try {
+      const m = await getLLM($('model').value);
+      $('status').textContent = 'Model myśli…';
+      const problem = { q: $('q').value.trim(), pick: 'pos' };
+      const r = $('mode').value === 'solver'
+        ? await solveWithSolver(problem, m, solver)
+        : await solveDirect(problem, m);
+      render(r.trace);
+      $('answer').textContent = r.x === null ? 'Brak wyniku' : `x = ${fmt(r.x)}`;
+      $('status').textContent = `${(r.ms / 1000).toFixed(1)} s, próby: ${r.attempts}`;
+    } catch (e) {
+      $('status').textContent = 'Błąd: ' + e.message;
+      console.error(e);
+    }
+    $('run').disabled = false;
+  };
+</script>
+</body>
+</html>
