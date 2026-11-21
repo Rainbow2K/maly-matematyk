@@ -3,76 +3,191 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Mały Matematyk · lokalne AI, które nie myli się w rachunkach</title>
-  <meta name="description" content="Malutki model językowy w Twojej przeglądarce zamienia zadania z matematyki i fizyki na równania, a precyzyjny solver je rozwiązuje. Offline, prywatnie, za darmo.">
-  <link rel="stylesheet" href="js/style.css">
+  <title>Mały Matematyk · mały model, bezbłędne rachunki</title>
+  <meta name="description" content="Malutki model AI w Twojej przeglądarce zamienia zadania z matematyki i fizyki na równania, a precyzyjny solver je rozwiązuje i sprawdza. Offline, prywatnie, za darmo.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
+  <link rel="stylesheet" href="js/style.css?v=6">
 </head>
 <body>
 <nav class="nav"><div class="nav-in">
   <a class="brand" href="./"><span class="logo">∑</span> Mały Matematyk</a>
   <div class="nav-links">
-    <a class="active" href="./">Aplikacja</a>
-    <a href="bench.html">Benchmark</a>
-    <a class="hide-sm" href="slides.html">Prezentacja</a>
+    <a class="hide-sm" href="#jak">Jak to działa</a>
+    <a class="hide-sm" href="#wyniki">Wyniki</a>
+    <a href="slides.html">Prezentacja</a>
     <a href="https://github.com/Rainbow2K/maly-matematyk">GitHub</a>
   </div>
+  <a class="btn" href="#demo" style="padding:8px 14px;font-size:14px">Wypróbuj</a>
 </div></nav>
 
-<main>
-  <section class="hero">
-    <span class="pill"><span class="dot"></span> Działa w 100% w Twojej przeglądarce</span>
+<header class="wrap hero2">
+  <div>
+    <span class="pill"><span class="dot"></span> Lokalne AI · działa w przeglądarce</span>
     <h1>Mały model.<br><span class="grad">Bezbłędne rachunki.</span></h1>
-    <p>Wpisz zadanie z matematyki albo fizyki. Model AI mniejszy niż zdjęcie z telefonu zamienia je na równanie, a precyzyjny solver podaje wynik i sam go sprawdza. Offline, prywatnie, za darmo.</p>
-    <div class="stats">
-      <div class="stat"><b>od 135M</b><span>parametrów wystarczy</span></div>
-      <div class="stat"><b>0 zł</b><span>bez API i bez chmury</span></div>
-      <div class="stat"><b>0 bajtów</b><span>wysłanych na serwer</span></div>
+    <p class="sub">Wpisz zadanie z matematyki albo fizyki. Model AI mniejszy niż zdjęcie z telefonu zamienia je na równanie, a precyzyjny solver podaje wynik i sam go sprawdza.</p>
+    <div class="btn-row">
+      <a class="btn" href="#demo">Rozwiąż zadanie teraz →</a>
+      <a class="btn ghost" href="#wyniki">Zobacz wyniki</a>
     </div>
-  </section>
+    <div class="hero-note"><span>bez konta</span><span>bez chmury</span><span>bez kosztów API</span></div>
+  </div>
+  <div class="mock"><div class="mock-in">
+    <div class="mock-bar"><i></i><i></i><i></i><span>maly-matematyk · SmolLM2 360M · WebGPU</span></div>
+    <div class="mock-body" id="mock">
+      <div class="mline q"><span class="tag">Zadanie</span>Kamień rzucono poziomo z prędkością 15 m/s z klifu o wysokości 20 m. Jak daleko od podnóża upadnie?</div>
+      <div class="mline ai"><span class="tag">AI tłumaczy</span><span id="typed"></span></div>
+      <div class="mline sv"><span class="tag">Solver liczy i sprawdza</span>pierwiastki: −30.29, 30.29 → wybieram dodatni<br>podstawienie: residuum 1e-15 ✓</div>
+      <div class="mline res"><span class="tag">Wynik</span><b>x = 30.29 m</b></div>
+    </div>
+  </div></div>
+</header>
 
-  <section class="app">
-    <div class="card">
-      <p class="card-title">Zadanie</p>
-      <label class="field">Model AI</label>
-      <div class="seg four" id="models"></div>
-      <div class="spacer"></div>
-      <label class="field">Tryb pracy</label>
-      <div class="seg">
-        <input type="radio" name="mode" id="mode-solver" value="solver" checked>
-        <label for="mode-solver"><b>AI + solver</b><span>AI tłumaczy, solver liczy</span></label>
-        <input type="radio" name="mode" id="mode-direct" value="direct">
-        <label for="mode-direct"><b>Samo AI</b><span>dla porównania</span></label>
+<div class="strip"><div class="wrap">
+  <span>Napędzane przez</span><b>transformers.js</b><b>ONNX Runtime Web</b><b>WebGPU</b><b>SmolLM2</b><b>Qwen2.5</b><b>mathjs</b>
+</div></div>
+
+<main class="wrap" style="padding:0">
+  <section class="block">
+    <div class="eyebrow">Problem</div>
+    <h2 class="big">Małe modele rozumieją zadania.<br>Gorzej z liczeniem.</h2>
+    <p class="lead2">Model z kilkuset milionami parametrów potrafi poprawnie opisać, co trzeba zrobić, a potem pomylić się w ostatnim mnożeniu. Zwykła rada to „weź większy model”. My idziemy w drugą stronę.</p>
+    <div class="vs">
+      <div class="card bad-card">
+        <h3>Samo AI</h3>
+        <div class="who2">model liczy „w głowie”, kilkaset tokenów rozumowania</div>
+        <div class="code">t = sqrt(2·20 / 9.81) = sqrt(4.08) ≈ 2.02 s
+d = 15 · 2.02 = <span class="r">32.3 m</span></div>
+        <div class="verdict bad">✗ Dobry tok rozumowania, błąd w mnożeniu</div>
       </div>
-      <div class="spacer"></div>
-      <label class="field" for="q">Treść zadania <span class="small">(po angielsku, tak małe modele najlepiej rozumieją ten język)</span></label>
-      <textarea id="q">A stone is thrown horizontally at 15 m/s from the top of a cliff 20 m high. Using g = 9.81 m/s^2, how far from the base of the cliff, in meters, does it land?</textarea>
-      <div class="chips" id="examples"></div>
-      <div class="spacer"></div>
-      <button class="big" id="run">Rozwiąż zadanie</button>
-      <div class="progress" id="prog" hidden><div></div></div>
-      <div class="status" id="status"></div>
-    </div>
-
-    <div class="card">
-      <div class="row" style="justify-content:space-between; margin-bottom:14px">
-        <p class="card-title" style="margin:0">Rozwiązanie</p>
-        <span class="badge live" id="device">sprawdzam sprzęt…</span>
+      <div class="card good-card">
+        <h3>Mały Matematyk</h3>
+        <div class="who2">AI pisze tylko równanie, liczy solver</div>
+        <div class="code"><span class="c">EQ: 20 = 0.5*9.81*(x/15)^2</span>
+solver → x = <span class="g">30.29 m</span>  (sprawdzone)</div>
+        <div class="verdict good">✓ Dokładnie, szybciej i z dowodem poprawności</div>
       </div>
-      <div class="result-empty" id="empty"><span class="big-icon">∑</span>Tu pojawi się równanie, kroki solvera i wynik.<br>Przy pierwszym uruchomieniu model pobiera się raz, potem działa z pamięci przeglądarki.</div>
-      <div class="answer" id="answer"><small>Wynik</small><div class="val" id="val"></div><div class="meta" id="meta"></div></div>
-      <div class="trace" id="trace"></div>
     </div>
   </section>
 
-  <h2 class="section-h">Jak to działa</h2>
-  <p class="section-sub">Małe modele świetnie rozumieją treść zadania, ale mylą się w rachunkach. Dlatego dzielimy pracę: AI robi to, w czym jest dobre, a matematykę zostawiamy matematyce.</p>
-  <section class="how">
-    <div class="card"><div class="num">1</div><h3>AI czyta i tłumaczy</h3><p>Model zamienia treść zadania na jedno równanie z niewiadomą x. Nie liczy niczego, więc nie ma gdzie się pomylić. Wystarczy mu kilkanaście tokenów.</p></div>
-    <div class="card"><div class="num">2</div><h3>Solver liczy precyzyjnie</h3><p>Deterministyczny solver numeryczny znajduje wszystkie rozwiązania i wybiera to, o które pyta zadanie, np. dodatni czas albo długość.</p></div>
-    <div class="card"><div class="num">3</div><h3>Wynik sprawdza się sam</h3><p>Rozwiązanie jest podstawiane z powrotem do równania. Jeśli coś się nie zgadza, AI dostaje konkretną informację zwrotną i poprawia się.</p></div>
+  <section class="block" id="jak">
+    <div class="eyebrow">Jak to działa</div>
+    <h2 class="big">Podział pracy jak w dobrym zespole</h2>
+    <p class="lead2">AI robi to, w czym jest dobre: czyta i rozumie. Matematykę zostawiamy matematyce.</p>
+    <div class="steps">
+      <div class="card"><span class="step-n">01</span><div class="icon g">✦</div><h3>AI czyta i tłumaczy</h3><p>Model zamienia treść zadania na jedno równanie z niewiadomą x. Nie liczy niczego, więc nie ma gdzie się pomylić. Wystarcza mu kilkanaście tokenów.</p></div>
+      <div class="card"><span class="step-n">02</span><div class="icon g">∑</div><h3>Solver liczy precyzyjnie</h3><p>Deterministyczny solver numeryczny znajduje wszystkie rozwiązania i wybiera to, o które pyta zadanie, np. dodatni czas albo długość.</p></div>
+      <div class="card"><span class="step-n">03</span><div class="icon g">✓</div><h3>Wynik sprawdza się sam</h3><p>Rozwiązanie wraca do równania. Jeśli coś się nie zgadza, AI dostaje konkretną informację zwrotną i poprawia się. Bez zgadywania.</p></div>
+    </div>
   </section>
+
+  <section class="block" id="demo">
+    <div class="eyebrow">Demo na żywo</div>
+    <h2 class="big">Wypróbuj na swoim komputerze</h2>
+    <p class="lead2">Model pobiera się raz i zostaje w pamięci przeglądarki. Potem działa nawet bez internetu.</p>
+    <div class="app">
+      <div class="card">
+        <p class="card-title">Zadanie</p>
+        <label class="field">Model AI</label>
+        <div class="seg four" id="models"></div>
+        <div class="spacer"></div>
+        <label class="field">Tryb pracy</label>
+        <div class="seg">
+          <input type="radio" name="mode" id="mode-solver" value="solver" checked>
+          <label for="mode-solver"><b>AI + solver</b><span>AI tłumaczy, solver liczy</span></label>
+          <input type="radio" name="mode" id="mode-direct" value="direct">
+          <label for="mode-direct"><b>Samo AI</b><span>dla porównania</span></label>
+        </div>
+        <div class="spacer"></div>
+        <label class="field" for="q">Treść zadania <span class="small">· po angielsku, tak małe modele rozumieją najlepiej</span></label>
+        <textarea id="q">A stone is thrown horizontally at 15 m/s from the top of a cliff 20 m high. Using g = 9.81 m/s^2, how far from the base of the cliff, in meters, does it land?</textarea>
+        <div class="chips" id="examples"></div>
+        <div class="spacer"></div>
+        <button class="big" id="run">Rozwiąż zadanie</button>
+        <div class="progress" id="prog" hidden><div></div></div>
+        <div class="status" id="status"></div>
+      </div>
+      <div class="card">
+        <div class="row" style="justify-content:space-between; margin-bottom:14px">
+          <p class="card-title" style="margin:0">Rozwiązanie</p>
+          <span class="badge live" id="device">sprawdzam sprzęt…</span>
+        </div>
+        <div class="result-empty" id="empty"><span class="big-icon">∑</span>Tu pojawi się równanie, kroki solvera i wynik.</div>
+        <div class="answer" id="answer"><small>Wynik</small><div class="val" id="val"></div><div class="meta" id="meta"></div></div>
+        <div class="trace" id="trace"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="wyniki">
+    <div class="eyebrow">Wyniki</div>
+    <h2 class="big">Mniej parametrów, lepsze wyniki</h2>
+    <p class="lead2">34 zadania: 12 równań i 22 zadania z fizyki. Każdy model rozwiązuje je dwa razy: sam i z solverem. Liczymy trafienia z dokładnością do 1%.</p>
+    <div class="card">
+      <div class="legend2"><span><i style="background:rgba(255,255,255,.18)"></i>Samo AI</span><span><i style="background:linear-gradient(135deg,#5ee7ff,#8b7bff)"></i>Mały Matematyk (AI + solver)</span></div>
+      <div class="chart2" id="chart"><p class="small" style="text-align:center">Benchmark w toku. Możesz go też <a href="bench.html">uruchomić u siebie</a>.</p></div>
+      <p class="small" id="takeaway" style="text-align:center;margin:22px 0 0"></p>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="eyebrow">Dlaczego lokalnie</div>
+    <h2 class="big">Twoje zadania zostają u Ciebie</h2>
+    <p class="lead2">Bez serwera, bez logowania, bez rachunku za tokeny.</p>
+    <div class="features">
+      <div class="card"><div class="icon">🔒</div><h3>Prywatnie</h3><p>Model działa w karcie przeglądarki. Żadne dane nie wychodzą z komputera.</p></div>
+      <div class="card"><div class="icon">⚡</div><h3>Szybko</h3><p>AI pisze kilkanaście tokenów zamiast kilkuset. Wynik w kilka sekund, także na laptopie.</p></div>
+      <div class="card"><div class="icon">📴</div><h3>Offline</h3><p>Po pierwszym pobraniu model działa z cache, również bez internetu.</p></div>
+      <div class="card"><div class="icon">🪶</div><h3>Lekko</h3><p>Od 135M parametrów i ~120 MB. Wagi 4-bitowe, GPU przez WebGPU albo zwykły procesor.</p></div>
+    </div>
+  </section>
+
+  <div class="cta">
+    <h2>Sprawdź, jak liczy najmniejszy model</h2>
+    <p>Jedno kliknięcie. Bez instalacji, bez konta, bez wysyłania danych.</p>
+    <div class="btn-row"><a class="btn" href="#demo">Wypróbuj teraz →</a><a class="btn ghost" href="https://github.com/Rainbow2K/maly-matematyk">Kod na GitHubie</a></div>
+  </div>
 </main>
-<footer><span>Mały Matematyk · Local AI · Proszek do Pieczenia</span><span>transformers.js · WebGPU · mathjs</span></footer>
+<footer><span>Mały Matematyk · Local AI · Proszek do Pieczenia</span><span><a href="bench.html">Benchmark</a> · <a href="slides.html">Prezentacja</a> · <a href="https://github.com/Rainbow2K/maly-matematyk">GitHub</a></span></footer>
+
+<script>
+  // animacja podglądu w hero
+  (function () {
+    const lines = [...document.querySelectorAll('#mock .mline')];
+    const eq = 'EQ: 20 = 0.5*9.81*(x/15)^2';
+    const typed = document.getElementById('typed');
+    function play() {
+      lines.forEach((l) => l.classList.remove('on')); typed.textContent = ''; typed.classList.add('cursor');
+      setTimeout(() => lines[0].classList.add('on'), 200);
+      setTimeout(() => {
+        lines[1].classList.add('on');
+        let k = 0;
+        const t = setInterval(() => { typed.textContent = eq.slice(0, ++k); if (k >= eq.length) { clearInterval(t); typed.classList.remove('cursor'); } }, 45);
+      }, 1100);
+      setTimeout(() => lines[2].classList.add('on'), 1100 + eq.length * 45 + 500);
+      setTimeout(() => lines[3].classList.add('on'), 1100 + eq.length * 45 + 1300);
+      setTimeout(play, 9500);
+    }
+    play();
+  })();
+
+  // wyniki benchmarku
+  fetch('results/summary.json?v=' + Date.now()).then((r) => r.ok ? r.json() : Promise.reject()).then((rows) => {
+    const chart = document.getElementById('chart'); chart.innerHTML = '';
+    const by = {};
+    for (const r of rows) (by[r.label] ||= { params: r.params })[r.mode] = r;
+    const bars = [];
+    for (const [label, m] of Object.entries(by)) {
+      const pct = (r) => r ? Math.round(100 * r.correct / r.n) : 0;
+      const div = document.createElement('div'); div.className = 'c-row';
+      div.innerHTML = `<div class="lbl"><b>${label}</b><span>${(m.params / 1e6).toFixed(0)}M parametrów</span></div>
+        <div class="c-bars"><div class="c-bar d" data-w="${pct(m.direct)}">${pct(m.direct)}%</div><div class="c-bar s" data-w="${pct(m.solver)}">${pct(m.solver)}%</div></div>`;
+      chart.append(div);
+    }
+    requestAnimationFrame(() => document.querySelectorAll('.c-bar').forEach((b) => { b.style.width = Math.max(4, +b.dataset.w) + '%'; }));
+    fetch('results/takeaway.txt?v=' + Date.now()).then((r) => r.ok ? r.text() : '').then((t) => { document.getElementById('takeaway').textContent = t; });
+  }).catch(() => {});
+</script>
 
 <script type="module">
   import * as math from 'https://cdn.jsdelivr.net/npm/mathjs@13.2.3/+esm';
