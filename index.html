@@ -137,9 +137,9 @@ solver → x = <span class="g">30.29 m</span>  (sprawdzone)</div>
     for (const r of rows) (by[r.label] ||= { params: r.params })[r.mode] = r;
     const bars = [];
     for (const [label, m] of Object.entries(by)) {
-      const pct = (r) => r ? Math.round(100 * r.correct / r.n) : 0;
+      const pct = (r) => r ? Math.round(100 * (r.equation ? r.equation[0] / r.equation[1] : r.correct / r.n)) : 0;
       const div = document.createElement('div'); div.className = 'c-row';
-      div.innerHTML = `<div class="lbl"><b>${label}</b><span>${(m.params / 1e6).toFixed(0)}M parametrów</span></div>
+      div.innerHTML = `<div class="lbl"><b>${label}</b><span>${(m.params / 1e6).toFixed(0)}M parametrów · równania</span></div>
         <div class="c-bars"><div class="c-bar d" data-w="${pct(m.direct)}">${pct(m.direct)}%</div><div class="c-bar s" data-w="${pct(m.solver)}">${pct(m.solver)}%</div></div>`;
       chart.append(div);
     }
