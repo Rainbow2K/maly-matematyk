@@ -88,8 +88,12 @@
   const problems = PROBLEMS.slice(0, limit);
 
   const device = await detectDevice();
-  const results = { device, started: new Date().toISOString(), userAgent: navigator.userAgent, runs: [] };
+  const KEY = 'mm-bench:' + location.search;
+  let results = { device, started: new Date().toISOString(), userAgent: navigator.userAgent, runs: [] };
+  try { const saved = JSON.parse(localStorage.getItem(KEY) || 'null'); if (saved && saved.runs) results = saved; } catch (_) {}
   window.__bench = results;
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(results)); } catch (_) {} };
+  const doneKey = (m, mode, id) => `${m}|${mode}|${id}`;
 
   function show() {
     $('json').textContent = JSON.stringify(results, null, 1);
@@ -125,7 +129,9 @@
     const chosen = [...document.querySelectorAll('#models input:checked')].map((i) => i.dataset.id);
     const modes = [$('m-direct').checked && 'direct', $('m-solver').checked && 'solver'].filter(Boolean);
     const total = chosen.length * modes.length * problems.length; let done = 0;
+    const finished = new Set(results.runs.filter((r) => r.id).map((r) => doneKey(r.model, r.mode, r.id)));
     for (const id of chosen) {
+      if (modes.every((mode) => problems.every((p) => finished.has(doneKey(id, mode, p.id))))) continue;
       $('status').textContent = `Ładuję ${id}…`;
       let llm;
       try {
@@ -148,6 +154,7 @@
       results.dtype = llm.dtype;
       for (const mode of modes) {
         for (const [i, p] of problems.entries()) {
+          if (finished.has(doneKey(id, mode, p.id))) { done++; continue; }
           $('status').textContent = `${MODELS.find((x) => x.id === id).label} · ${mode === 'solver' ? 'AI + solver' : 'samo AI'} · zadanie ${i + 1} z ${problems.length}`;
           done++; $('bar').style.width = `${(100 * done / total).toFixed(1)}%`;
           let r;
@@ -157,19 +164,22 @@
             r = { x: null, attempts: 0, trace: [{ role: 'solver', text: 'wyjątek: ' + e.message }], ms: 0, tokens: 0 };
           }
           const rec = { model: id, mode, id: p.id, cat: p.cat, expected: p.a, x: r.x, ok: isCorrect(r.x, p.a), attempts: r.attempts, ms: Math.round(r.ms), tokens: r.tokens, trace: r.trace };
-          results.runs.push(rec);
+          rec.trace = rec.trace.map((t) => ({ role: t.role, text: String(t.text).slice(0, 600) }));
+          results.runs.push(rec); save();
           row(rec); show();
         }
       }
       await llm.dispose();
     }
-    results.finished = new Date().toISOString();
+    results.finished = new Date().toISOString(); save();
     show();
     $('status').textContent = 'Gotowe. Wyniki możesz pobrać jako JSON.';
     document.title = 'DONE · benchmark';
     $('run').disabled = false;
   }
 
+  for (const r of results.runs) if (r.id) row(r);
+  show();
   $('run').onclick = run;
   $('dl').onclick = () => {
     const a = document.createElement('a');
