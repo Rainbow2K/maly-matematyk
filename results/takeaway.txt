@@ -1,0 +1,1 @@
+SmolLM2 135M na równaniach: 8% → 33% trafień po dodaniu solvera, 9× mniej tokenów, 4× szybciej. Zadania tekstowe z fizyki są dla 135M jeszcze za trudne (0/22).

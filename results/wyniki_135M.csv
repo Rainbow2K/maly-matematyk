@@ -1,0 +1,69 @@
+tryb,zadanie,wynik_modelu,poprawny,proby,czas_s,tokeny
+samo AI,e1,2,nie,1,24.9,320
+samo AI,e2,14,nie,1,25,320
+samo AI,e3,4,nie,1,22.1,320
+samo AI,e4,14,nie,1,42.3,270
+samo AI,e5,0,nie,1,3,31
+samo AI,e6,64,nie,1,13,141
+samo AI,e7,108,nie,1,20.1,320
+samo AI,e8,2,nie,1,7.2,107
+samo AI,e9,12,nie,1,71.4,233
+samo AI,e10,2,tak,1,28.6,320
+samo AI,e11,10,nie,1,105.8,320
+samo AI,e12,15,nie,1,52,320
+samo AI,p1,2.201,nie,1,25.1,252
+samo AI,p2,2,nie,1,33.2,320
+samo AI,p3,2,nie,1,11.3,116
+samo AI,p4,1.28,nie,1,27.4,320
+samo AI,p5,80,nie,1,3.9,53
+samo AI,p6,1000,nie,1,6.7,80
+samo AI,p7,2,nie,1,6.7,81
+samo AI,p8,2.4,nie,1,6.9,101
+samo AI,p9,2,nie,1,,162
+samo AI,p10,1,nie,1,17.3,123
+samo AI,p11,2.5,nie,1,9.7,117
+samo AI,p12,12000,nie,1,26.8,195
+samo AI,p13,2,nie,1,19.7,320
+samo AI,p14,4.4,nie,1,9.9,143
+samo AI,p15,18,nie,1,40.3,320
+samo AI,p16,1,nie,1,30.7,320
+samo AI,p17,2.23,nie,1,33.2,171
+samo AI,p18,12,nie,1,29.6,320
+samo AI,p19,2,tak,1,15.3,150
+samo AI,p20,10,nie,1,23.9,320
+samo AI,p21,0.26667,nie,1,16.8,218
+samo AI,p22,0.95,nie,1,24.1,320
+AI + solver,e1,,nie,3,21.7,38
+AI + solver,e2,,nie,3,21,52
+AI + solver,e3,7,nie,1,5.8,17
+AI + solver,e4,6,nie,1,5.6,13
+AI + solver,e5,,nie,3,20,46
+AI + solver,e6,6,tak,1,5.3,11
+AI + solver,e7,,nie,3,19,38
+AI + solver,e8,18,tak,1,5.4,13
+AI + solver,e9,5.5,tak,1,5.9,19
+AI + solver,e10,,nie,3,19.4,39
+AI + solver,e11,-3,tak,1,5.7,15
+AI + solver,e12,0.94692,nie,1,6.4,24
+AI + solver,p1,,nie,3,28.3,144
+AI + solver,p2,,nie,3,31.6,144
+AI + solver,p3,,nie,3,29.8,144
+AI + solver,p4,,nie,3,26.4,46
+AI + solver,p5,,nie,3,27.3,72
+AI + solver,p6,,nie,3,32.2,144
+AI + solver,p7,,nie,3,23.3,54
+AI + solver,p8,,nie,3,24,72
+AI + solver,p9,,nie,3,20.6,35
+AI + solver,p10,0,nie,3,27,75
+AI + solver,p11,,nie,3,29.6,115
+AI + solver,p12,,nie,3,25.4,90
+AI + solver,p13,,nie,3,33,143
+AI + solver,p14,,nie,3,20.8,44
+AI + solver,p15,,nie,3,21.5,67
+AI + solver,p16,,nie,3,24.7,78
+AI + solver,p17,,nie,3,27,116
+AI + solver,p18,,nie,3,23.4,72
+AI + solver,p19,,nie,3,23.2,72
+AI + solver,p20,,nie,3,21.2,40
+AI + solver,p21,,nie,3,32.1,144
+AI + solver,p22,,nie,3,31.2,138

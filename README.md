@@ -28,7 +28,18 @@ Całość działa **lokalnie w przeglądarce**: transformers.js (ONNX Runtime We
 
 ## Wyniki
 
-WYNIKI_PLACEHOLDER
+Pomiar: Chrome, WebGPU, wagi 4-bit (q4f16), 34 zadania (12 równań, 22 zadania z fizyki), trafienie = błąd względny ≤ 1%. Surowe dane: [`results/wyniki_135M.csv`](results/wyniki_135M.csv).
+
+**SmolLM2 135M**
+
+| | Samo AI (chain-of-thought) | AI + solver |
+|---|---|---|
+| Równania | 1/12 (8%) | **4/12 (33%)** |
+| Fizyka (zadania tekstowe) | 1/22 | 0/22 |
+| Śr. tokenów na równanie | 252 | **27** |
+| Mediana czasu na równanie | 25 s | **6 s** |
+
+Na równaniach ten sam model 135M trafia 4× częściej, generuje 9× mniej tokenów i odpowiada 4× szybciej. Zadania tekstowe z fizyki są dla 135M za trudne do przetłumaczenia na równanie: model wpisuje wynik zamiast równania albo myli wielkości. Następny krok to te same pomiary dla SmolLM2 360M i Qwen2.5 0.5B (benchmark jest gotowy w `bench.html`).
 
 ## Jak uruchomić
 

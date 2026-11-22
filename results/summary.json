@@ -1,0 +1,4 @@
+[
+ {"label":"SmolLM2 135M","params":135000000,"mode":"direct","correct":2,"n":34,"equation":[1,12],"physics":[1,22],"eq_avg_tokens":252,"eq_median_s":25.0},
+ {"label":"SmolLM2 135M","params":135000000,"mode":"solver","correct":4,"n":34,"equation":[4,12],"physics":[0,22],"eq_avg_tokens":27,"eq_median_s":6.2}
+]
